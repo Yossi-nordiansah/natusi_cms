@@ -11,9 +11,15 @@ const getProjects = (req, res) => {
 };
 
 const addProject = (req, res) => {
-    const { judul, deskripsi, id_admin } = req.body;
+    const { judul, deskripsi } = req.body;
     const id = uuidv4();
     const image = req.file ? `images/${req.file.filename}` : '';
+    const id_admin = req.session.userId; // Dapatkan id_admin dari sesi
+
+    if (!id_admin) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     const query = 'INSERT INTO cuplikan_project (id, judul, deskripsi, image, id_admin) VALUES (?, ?, ?, ?, ?)';
 
     db.query(query, [id, judul, deskripsi, image, id_admin], (err, results) => {
@@ -23,8 +29,14 @@ const addProject = (req, res) => {
 };
 
 const updateProject = (req, res) => {
-    const { id, judul, deskripsi, id_admin } = req.body;
+    const { id, judul, deskripsi } = req.body;
     const image = req.file ? `images/${req.file.filename}` : req.body.image;
+    const id_admin = req.session.userId; // Dapatkan id_admin dari sesi
+
+    if (!id_admin) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     const query = 'UPDATE cuplikan_project SET judul = ?, deskripsi = ?, image = ?, id_admin = ? WHERE id = ?';
 
     db.query(query, [judul, deskripsi, image, id_admin, id], (err, results) => {
